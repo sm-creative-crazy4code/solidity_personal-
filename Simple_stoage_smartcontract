@@ -1,0 +1,33 @@
+//SPDX-License-Identifier: UNLICENSED
+pragma solidity >=0.5.0<0.9.0;
+contract SimpleStorage{
+
+    string public data;
+    //when we declare a variable outside a function we are bydefautn assigning it the storage memory location
+    //these are state variable that are stored on the block chaain
+//for variables with visibility public solidity creates a getter function button
+
+
+
+
+//we cant again use data to name the parameyter wecare passing to the function and hence weprefix it with _ and hence pass _data
+
+//set function actually modiies data on the block chain and hence is called as a tranction
+//any key word like view or pure indicates that the function needs to be executed as a call or else ut is treated as a tranction
+function set( string memory _data) public{
+    data= _data;
+
+}
+//transactio in ehtherium blockchain means we send a data package that can modify the state of block chain
+
+
+//how to determine whwther a function will be executed as acall or transaction
+//view fuctuon can omly read data from the block chai but cannot modify the data
+
+//get is a view only or a read only function and is not executedas atransaction but is executed as a call 
+function get() view public returns (string memory) {
+    return data;
+
+}
+
+ }
