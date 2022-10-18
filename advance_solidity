@@ -1,0 +1,102 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+import"./PriceConverter.sol";
+
+
+// here we will make our fundme contract more gas efficient
+
+error NotOwner();
+
+contract Fundme{
+    using PriceConverter for uint256;
+// MAKING A GAS EFFICIENT CONTRACT
+   
+// 1_USING CONST AND IMMUTABLE KEY WORDS
+/*these key words makes the variable unchangable and hence the are easier to write on the block chain
+ when we use const key word the variable doesnot use storage spotand hence is much easier to raed
+ instead of storing these variables into the storage slot we store them directky into byte code of the contract
+*/
+
+/* now if weare not declaring an initializing these kind of variable in same line we must use immutable key word
+ eg  owner which is initialized inside the constructor*/
+
+
+
+/*2_ Modifying our require statement here as we send a string where each charecter will get stored individually which take slot of size ...instead we can use coustum errors.we can include it by just declaring the methods
+     this inturn helps to savve a lot of gas */
+
+    
+    uint256 public constant MINIUM_USD=50*1e18;
+    address public immutable  i_owner;
+    constructor(){
+     i_owner=msg.sender;
+}
+
+
+
+mapping(address=>uint) public addressToMoney;
+address[] public funders;
+
+
+// RECEIVE AND FALLBACK
+/*we want to send transaction to our contact without using fund function that by just copypasting the address of our contract and this can be
+this can be done using receive keyword
+but as fund function is no called we will never know data about the sender and whom is sending money to our contract
+so if someone accidently calls the fnction we must handel it
+
+ */
+
+
+
+
+
+function fund() public payable{
+     require(msg.value.getConvertCurrency() >= MINIUM_USD,"Not sufficient funds send");
+     funders.push(msg.sender);
+     addressToMoney[msg.sender]=msg.value;
+}
+
+modifier onlyOwner{
+    // require(msg.sender==i_owner,"Only owner can withdraw");
+    if(msg.sender!=i_owner){
+        revert NotOwner(); 
+    }
+    _;
+}
+
+function withdraw()public onlyOwner{
+
+  address withDrawingFunder= msg.sender;
+
+   for(uint256 funderNum=0;funderNum < funders.length;funderNum++){
+
+    addressToMoney[withDrawingFunder]=0;
+                                             }
+      funders= new address[](0);
+
+      bool isSuccess=payable(msg.sender).send(address(this).balance);
+      require( isSuccess,"Transaction not sent");
+
+     (bool callSuccess,)= payable(msg.sender).call{value:address(this).balance}("");
+    require( callSuccess,"Transaction not sent");
+}
+
+
+// USING FALLBACK FUNCTION AND RECEIVE FUNCTION 
+/* just in case to make sure that if somebody accidently send us the mner without atually calling the fund function correctly
+if there is no receive function and fall back function and no correct data as well our transaction will just air out and user money will be lost 
+hence if someone accidently csend money without callng the fund function they will autoatically be routed to fund function 
+also it means if someone didnot send us enough money that transaction will still get reverted */
+ 
+ 
+ receive()external payable{
+     fund();
+ }
+
+fallback() external payable{
+    fund;
+}
+
+}
+
+
