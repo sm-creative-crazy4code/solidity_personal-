@@ -1,0 +1,41 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract ReceiveFallback{
+// receive and fallback  special function
+uint256 public variable;
+
+
+receive() external payable{
+// as long as we are sending transaction and no data is associated with it receive function will get triggered
+// when we transact something to contract using receive function its value will be updated to 1
+// even if we send 0 ether the function will be updated to 1;
+// so receive is basically sending transction to the smart contractwithout sending any data
+// when we are actually sending dat ato a smart contract  along with transaction we are doing it through a payable fubnction
+// receive is only used to send transaction when no dat ais being send along with it;
+// when we are sending call datfa soidity actually looks for a function which is in n/eed of the data and call data actuallypoint st that data
+// 
+
+ variable=1;
+}
+
+// itthe contract doesnot recognised which function is requiring the data it just guides to the fall back functio as eclared as below
+
+fallback() external payable{
+
+    variable=2;
+}
+
+}
+
+/*
+ ether is sent to contract?
+          /        \
+        yes         no
+        /            \
+    receive()       fallback()
+     /     \
+   yes      no
+   /         \
+received()  fallback()
+*/
